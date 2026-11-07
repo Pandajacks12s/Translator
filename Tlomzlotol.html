@@ -3,756 +3,466 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZITMOL — Universal Alien Translator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Zitmol Translator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #090a0f;
+      background-color: #0b0f17;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #38bdf8;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #131c2e;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 8px 16px;
+    }
+
+    .lang-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+    }
+
+    .swap-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    .swap-btn:hover {
+      background: #38bdf8;
+      color: #0b0f17;
+      border-color: #38bdf8;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: #131c2e;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    textarea {
+      width: 100%;
+      flex-grow: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
       color: #f1f5f9;
-      background-image: 
-        radial-gradient(ellipse at 50% -15%, rgba(16, 185, 129, 0.14), transparent 60%),
-        radial-gradient(ellipse at 85% 115%, rgba(6, 182, 212, 0.08), transparent 50%);
+      font-family: inherit;
+      font-size: 1.1rem;
+      line-height: 1.5;
     }
 
-    .font-display { font-family: 'Space Grotesk', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-    .glass-box {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .glass-box:focus-within {
-      border-color: rgba(52, 211, 153, 0.45);
-      box-shadow: 0 0 35px -8px rgba(16, 185, 129, 0.25);
+    textarea::placeholder {
+      color: #475569;
     }
 
-    @keyframes audioPulse {
-      0%, 100% { transform: scaleY(0.35); }
-      50% { transform: scaleY(1); }
+    .output-area {
+      width: 100%;
+      flex-grow: 1;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
-    .pulse-bar { animation: audioPulse 0.75s ease-in-out infinite; }
-    .pulse-bar:nth-child(2) { animation-delay: 0.12s; }
-    .pulse-bar:nth-child(3) { animation-delay: 0.25s; }
-    .pulse-bar:nth-child(4) { animation-delay: 0.38s; }
 
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
+    .output-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+    .action-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: #131c2e;
+      border: 1px solid #1e293b;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-400 selection:text-black">
+<body>
 
-  <!-- Header -->
-  <header class="w-full max-w-4xl mx-auto px-4 pt-7 pb-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-300 flex items-center justify-center font-display font-bold text-slate-950 text-xl shadow-lg shadow-emerald-500/25">
-        z
-      </div>
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="font-display font-bold text-lg tracking-tight text-white">Zitmol</span>
-          <span class="text-[10px] font-mono tracking-widest uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Bi-directional 100%</span>
-        </div>
-        <p class="text-xs text-slate-400 font-mono">Strict 6-phoneme alien conlang: z • i • o • t • m • l</p>
-      </div>
-    </div>
-
-    <!-- Right Controls -->
-    <div class="flex items-center gap-2">
-      <button onclick="toggleDictionary()" class="px-3.5 py-1.5 rounded-full glass-box text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition flex items-center gap-1.5 active:scale-95">
-        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        <span>Roots & Memory</span>
-      </button>
-    </div>
+  <header>
+    <h1>ZITMOL TRANSLATOR</h1>
+    <p>Universal 2-Way Conlang Engine (z, i, o, t, m, l)</p>
   </header>
 
-  <!-- Main Translator Box -->
-  <main class="w-full max-w-4xl mx-auto px-4 flex-1 flex flex-col justify-center py-2">
-
-    <!-- Language Selector Header -->
-    <div class="flex items-center justify-between mb-3 px-2">
-      <div class="flex items-center gap-2">
-        <span id="langLeft" class="font-display font-semibold text-sm text-emerald-400 tracking-wide">English</span>
-      </div>
-
-      <!-- Tactile Reversible Swap Button -->
-      <button onclick="swapLanguages()" class="p-2.5 rounded-full glass-box hover:bg-emerald-500/15 text-slate-200 hover:text-emerald-400 transition transform hover:rotate-180 duration-300 active:scale-90" title="Swap languages">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
-      </button>
-
-      <div class="flex items-center gap-2">
-        <span id="langRight" class="font-display font-semibold text-sm text-cyan-400 tracking-wide">Zitmol (Alien)</span>
-      </div>
+  <div class="container">
+    <div class="controls-bar">
+      <span class="lang-label" id="srcLabel">English</span>
+      <button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
+      <span class="lang-label" id="targetLabel">Zitmol (Alien)</span>
     </div>
 
-    <!-- Dual Translation Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-      
-      <!-- Input Panel -->
-      <div class="glass-box rounded-2xl p-5 flex flex-col justify-between min-h-[220px]">
-        <div>
-          <textarea 
-            id="sourceInput"
-            rows="5"
-            placeholder="Type anything in English..."
-            class="w-full bg-transparent resize-none outline-none font-sans text-lg md:text-xl text-white placeholder:text-slate-500 leading-relaxed"
-            oninput="handleInput()">hi</textarea>
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-header">
+          <span id="inputStatus">INPUT</span>
+          <button class="action-btn" id="clearBtn">Clear</button>
         </div>
-
-        <div class="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-slate-500">
-          <span id="charCount">2 characters</span>
-          <button onclick="clearText()" class="hover:text-slate-300 transition px-2 py-1 rounded">Clear</button>
-        </div>
+        <textarea id="inputText" placeholder="Type anything here..."></textarea>
       </div>
 
-      <!-- Output Panel -->
-      <div class="glass-box rounded-2xl p-5 flex flex-col justify-between min-h-[220px] bg-slate-900/40 border-emerald-500/20 relative">
-        <div>
-          <div 
-            id="targetOutput"
-            class="font-display text-lg md:text-xl text-emerald-300 leading-relaxed break-words">
-            zil
-          </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span>TRANSLATION</span>
+          <span id="wordCount">0 chars</span>
         </div>
-
-        <div class="flex items-center justify-between pt-3 border-t border-white/5">
-          <div class="flex items-center gap-2">
-            <button 
-              id="speakBtn"
-              onclick="playAlienSpeech()" 
-              class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center gap-2 transition active:scale-95"
-              title="Play alien pronunciation">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.21-1.616.572-2.314.234-.847 1.058-1.354 1.938-1.354h2.24z"/></svg>
-              <span>Vocalize</span>
-              <div id="audioWave" class="hidden flex items-center gap-0.5 h-3 ml-1">
-                <span class="w-0.5 h-full bg-emerald-400 pulse-bar rounded-full"></span>
-                <span class="w-0.5 h-full bg-emerald-400 pulse-bar rounded-full"></span>
-                <span class="w-0.5 h-full bg-emerald-400 pulse-bar rounded-full"></span>
-              </div>
-            </button>
-          </div>
-
-          <button onclick="copyOutput()" id="copyBtn" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition active:scale-90" title="Copy to clipboard">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-          </button>
+        <div class="output-area" id="outputText"></div>
+        <div class="output-actions">
+          <button class="action-btn" id="soundBtn">Play Sound</button>
+          <button class="action-btn" id="copyBtn">Copy</button>
         </div>
       </div>
     </div>
 
-    <!-- Quick Phrases Row -->
-    <div class="mt-4 flex items-center gap-2 overflow-x-auto pb-2 text-xs no-scrollbar">
-      <span class="text-slate-500 font-mono text-[11px] uppercase tracking-wider pl-1 whitespace-nowrap">Quick:</span>
-      <button onclick="setPhrase('hi')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">hi</button>
-      <button onclick="setPhrase('wtf')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">wtf</button>
-      <button onclick="setPhrase('bro')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">bro</button>
-      <button onclick="setPhrase('chill')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">chill</button>
-      <button onclick="setPhrase('good morning')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">good morning</button>
-      <button onclick="setPhrase('what do you want')" class="px-3 py-1.5 rounded-full glass-box text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 whitespace-nowrap transition active:scale-95">what do you want</button>
-    </div>
-  </main>
-
-  <!-- Dictionary & Memory Drawer -->
-  <div id="dictModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="glass-box bg-slate-900/95 max-w-lg w-full max-h-[80vh] rounded-2xl p-5 border border-white/10 flex flex-col shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10">
-        <div>
-          <h3 class="font-display font-bold text-white text-base">Zitmol Core & Active Memory</h3>
-          <p class="text-xs text-slate-400 font-mono">Every translated word is remembered 100% two-ways</p>
-        </div>
-        <button onclick="toggleDictionary()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-
-      <div class="py-3 flex gap-2">
-        <input 
-          id="dictSearch" 
-          type="text" 
-          placeholder="Search vocabulary or remembered words..." 
-          oninput="renderDictionary()" 
-          class="flex-1 bg-slate-950/60 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white outline-none focus:border-emerald-400">
-        <button onclick="clearMemory()" class="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-mono transition" title="Clear learned words">Reset</button>
-      </div>
-
-      <div class="overflow-y-auto space-y-1.5 flex-1 pr-1" id="dictList">
-        <!-- Populated dynamically -->
-      </div>
+    <div class="quick-chips">
+      <span style="font-size: 0.8rem; color: #64748b; line-height: 28px;">Quick test:</span>
+      <button class="chip" data-text="hi">hi</button>
+      <button class="chip" data-text="wtf">wtf</button>
+      <button class="chip" data-text="gay">gay</button>
+      <button class="chip" data-text="lesbian">lesbian</button>
+      <button class="chip" data-text="mental">mental</button>
+      <button class="chip" data-text="good morning">good morning</button>
+      <button class="chip" data-text="who are you">who are you</button>
     </div>
   </div>
 
-  <!-- Minimal Footer -->
-  <footer class="w-full max-w-4xl mx-auto px-4 py-5 text-center text-xs text-slate-600 font-mono">
-    ZITMOL CONLANG • Reversible Phoneme Architecture (z • i • o • t • m • l)
-  </footer>
-
   <script>
-    /* ==========================================================
-       1. EXTENSIVE SEED VOCABULARY
-       ========================================================== */
-    const SEED_VOCAB = [
-      // Multi-word phrases & Slang (matched first)
-      { eng: "what the fuck", alien: "zotzom" },
-      { eng: "what the heck", alien: "zotzom" },
-      { eng: "wtf", alien: "zotzom" },
-      { eng: "good morning", alien: "ziz lit" },
-      { eng: "good night", alien: "ziz lot" },
-      { eng: "are you", alien: "til lit" },
-      { eng: "who are you", alien: "zomil til" },
-      { eng: "how are you", alien: "zotot til" },
-      { eng: "i am", alien: "mil lit" },
-      { eng: "you are", alien: "til lit" },
-      { eng: "i love you", alien: "mil tomli til" },
-      { eng: "i see you", alien: "mil tom til" },
+    // 6-Symbol Alphabet: 0:z, 1:i, 2:o, 3:t, 4:m, 5:l
+    const ALIEN_CHARS = ['z', 'i', 'o', 't', 'm', 'l'];
+    const CHAR_TO_VAL = { 'z': 0, 'i': 1, 'o': 2, 't': 3, 'm': 4, 'l': 5 };
 
-      // Identity, Traits & States
-      { eng: "mental", alien: "mimtol" },
-      { eng: "crazy", alien: "zommit" },
-      { eng: "mad", alien: "zommit" },
-      { eng: "lesbian", alien: "lizmi" },
-      { eng: "gay", alien: "lozi" },
-      { eng: "queer", alien: "zilom" },
-      { eng: "straight", alien: "tolit" },
-      { eng: "human", alien: "molit" },
-      { eng: "alien", alien: "zitmol" },
-      { eng: "cool", alien: "zizil" },
-      { eng: "happy", alien: "zizlit" },
-      { eng: "sad", alien: "zomlot" },
-      { eng: "angry", alien: "zomtot" },
-
-      // Slang & Conversational
-      { eng: "hello", alien: "zil" },
-      { eng: "hi", alien: "zil" },
-      { eng: "hey", alien: "zil" },
-      { eng: "bye", alien: "zol" },
-      { eng: "goodbye", alien: "zol" },
-      { eng: "bro", alien: "motil" },
-      { eng: "brother", alien: "motil" },
-      { eng: "friend", alien: "motil" },
-      { eng: "dude", alien: "motil" },
-      { eng: "chill", alien: "mizi" },
-      { eng: "relax", alien: "mizi" },
-      { eng: "lol", alien: "titil" },
-      { eng: "haha", alien: "titil" },
-      { eng: "yes", alien: "zi" },
-      { eng: "yeah", alien: "zi" },
-      { eng: "no", alien: "zo" },
-      { eng: "nope", alien: "zo" },
-      { eng: "not", alien: "zo" },
-      { eng: "ok", alien: "zit" },
-      { eng: "okay", alien: "zit" },
-      { eng: "stop", alien: "tilz" },
-      { eng: "wait", alien: "tilz" },
-      { eng: "run", alien: "lolit" },
-      { eng: "danger", alien: "zom" },
-      { eng: "bad", alien: "zom" },
-      { eng: "good", alien: "ziz" },
-      { eng: "safe", alien: "ziz" },
-
-      // Question markers
-      { eng: "what", alien: "zot" },
-      { eng: "who", alien: "zomil" },
-      { eng: "where", alien: "zolit" },
-      { eng: "when", alien: "zolot" },
-      { eng: "why", alien: "zolam" },
-      { eng: "how", alien: "zotot" },
-
-      // Pronouns & Copula
-      { eng: "i", alien: "mil" },
-      { eng: "me", alien: "mil" },
-      { eng: "you", alien: "til" },
-      { eng: "u", alien: "til" },
-      { eng: "we", alien: "mol" },
-      { eng: "us", alien: "mol" },
-      { eng: "they", alien: "zim" },
-      { eng: "them", alien: "zim" },
-      { eng: "he", alien: "zim" },
-      { eng: "she", alien: "zim" },
-      { eng: "it", alien: "zim" },
-      { eng: "are", alien: "lit" },
-      { eng: "is", alien: "lit" },
-      { eng: "am", alien: "lit" },
-      { eng: "this", alien: "lit" },
-      { eng: "that", alien: "lot" },
-      { eng: "here", alien: "lit" },
-      { eng: "there", alien: "lot" },
-
-      // Actions
-      { eng: "want", alien: "lom" },
-      { eng: "need", alien: "lom" },
-      { eng: "see", alien: "tom" },
-      { eng: "look", alien: "tom" },
-      { eng: "speak", alien: "mot" },
-      { eng: "say", alien: "mot" },
-      { eng: "talk", alien: "mot" },
-      { eng: "do", alien: "tot" },
-      { eng: "make", alien: "tot" },
-      { eng: "eat", alien: "milm" },
-      { eng: "sleep", alien: "zotol" },
-      { eng: "know", alien: "tim" },
-      { eng: "understand", alien: "tim" },
-      { eng: "love", alien: "tomli" },
-      { eng: "die", alien: "zomilz" },
-      { eng: "dead", alien: "zomilz" },
-      { eng: "live", alien: "liz" },
-      { eng: "alive", alien: "liz" }
+    // Common Static Vocabulary (Pre-seeded both ways)
+    const VOCAB = [
+      ['hi', 'zil'],
+      ['hello', 'zil'],
+      ['yes', 'zi'],
+      ['no', 'zo'],
+      ['what', 'zot'],
+      ['wtf', 'zotzom'],
+      ['good morning', 'zizlit'],
+      ['good night', 'zizlot'],
+      ['you', 'til'],
+      ['i', 'mil'],
+      ['me', 'mil'],
+      ['we', 'mol'],
+      ['are', 'lit'],
+      ['is', 'lit'],
+      ['am', 'lit'],
+      ['bro', 'motil'],
+      ['chill', 'mizi'],
+      ['gay', 'toi'],
+      ['lesbian', 'lizmi'],
+      ['mental', 'mimtol'],
+      ['danger', 'zom'],
+      ['bad', 'zom'],
+      ['good', 'ziz'],
+      ['friend', 'motil']
     ];
 
-    /* ==========================================================
-       2. BI-DIRECTIONAL MEMORY ENGINE (Dual Map + LocalStorage)
-       ========================================================== */
-    const STORAGE_KEY = "ZITMOL_LEARNED_MAP";
-    let engToAlienMap = new Map();
-    let alienToEngMap = new Map();
+    const engToAlienDict = new Map();
+    const alienToEngDict = new Map();
 
-    function loadMemory() {
-      // 1. Seed base vocab
-      SEED_VOCAB.forEach(pair => {
-        engToAlienMap.set(pair.eng.toLowerCase(), pair.alien.toLowerCase());
-        alienToEngMap.set(pair.alien.toLowerCase(), pair.eng.toLowerCase());
-      });
+    VOCAB.forEach(([en, al]) => {
+      engToAlienDict.set(en.toLowerCase(), al.toLowerCase());
+      alienToEngDict.set(al.toLowerCase(), en.toLowerCase());
+    });
 
-      // 2. Load custom remembered conversions from localStorage
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const stored = JSON.parse(raw);
-          Object.entries(stored).forEach(([eng, alien]) => {
-            engToAlienMap.set(eng.toLowerCase(), alien.toLowerCase());
-            alienToEngMap.set(alien.toLowerCase(), eng.toLowerCase());
-          });
+    // Deterministic Base-6 reversible encoder for unknown words
+    function encodeWord(word) {
+      let res = '';
+      for (let i = 0; i < word.length; i++) {
+        let code = word.charCodeAt(i);
+        // Map 0-255 into 3 base-6 digits: d1*36 + d2*6 + d3
+        let d1 = Math.floor(code / 36);
+        let rem = code % 36;
+        let d2 = Math.floor(rem / 6);
+        let d3 = rem % 6;
+        res += ALIEN_CHARS[d1] + ALIEN_CHARS[d2] + ALIEN_CHARS[d3];
+      }
+      return res;
+    }
+
+    function decodeWord(alienToken) {
+      if (alienToken.length % 3 !== 0) return alienToken;
+      let res = '';
+      for (let i = 0; i < alienToken.length; i += 3) {
+        let c1 = alienToken[i], c2 = alienToken[i+1], c3 = alienToken[i+2];
+        if (CHAR_TO_VAL[c1] === undefined || CHAR_TO_VAL[c2] === undefined || CHAR_TO_VAL[c3] === undefined) {
+          return alienToken;
         }
-      } catch (e) {
-        console.warn("Storage access limited:", e);
+        let code = CHAR_TO_VAL[c1] * 36 + CHAR_TO_VAL[c2] * 6 + CHAR_TO_VAL[c3];
+        res += String.fromCharCode(code);
       }
+      return res;
     }
 
-    function saveLearnedPair(engWord, alienWord) {
-      const e = engWord.toLowerCase();
-      const a = alienWord.toLowerCase();
+    // State
+    let isEnglishToAlien = true;
 
-      engToAlienMap.set(e, a);
-      alienToEngMap.set(a, e);
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const srcLabel = document.getElementById('srcLabel');
+    const targetLabel = document.getElementById('targetLabel');
+    const swapBtn = document.getElementById('swapBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const soundBtn = document.getElementById('soundBtn');
+    const wordCount = document.getElementById('wordCount');
 
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        let stored = raw ? JSON.parse(raw) : {};
-        stored[e] = a;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-      } catch (err) {}
-    }
-
-    function clearMemory() {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-      engToAlienMap.clear();
-      alienToEngMap.clear();
-      loadMemory();
-      renderDictionary();
-      handleInput();
-    }
-
-    /* ==========================================================
-       3. DETERMINISTIC REVERSIBLE ALIEN PHONEME CIPHER
-          Transforms ANY unseeded English word into valid
-          (z, i, o, t, m, l) syllables and guarantees 100%
-          reversibility.
-       ========================================================== */
-    const CONSONANTS = ['z', 't', 'm', 'l'];
-    const VOWELS = ['i', 'o'];
-
-    // Encode a single word to alien sounds
-    function encodeWordToAlien(word) {
-      const lower = word.toLowerCase();
-
-      // Check dictionary / memory first
-      if (engToAlienMap.has(lower)) {
-        return engToAlienMap.get(lower);
+    function translateText() {
+      const text = inputText.value.trim();
+      if (!text) {
+        outputText.textContent = '';
+        wordCount.textContent = '0 chars';
+        return;
       }
 
-      // Exact phonetic rules for classic user examples
-      if (lower === "mental") {
-        saveLearnedPair("mental", "mimtol");
-        return "mimtol";
-      }
-      if (lower === "lesbian") {
-        saveLearnedPair("lesbian", "lizmi");
-        return "lizmi";
-      }
+      wordCount.textContent = `${text.length} chars`;
 
-      // Algorithmic phonetic synthesis using strictly [z, i, o, t, m, l]
-      const charMap = {
-        'a':'o', 'e':'i', 'i':'i', 'o':'o', 'u':'o', 'y':'i',
-        'b':'t', 'c':'z', 'd':'t', 'f':'m', 'g':'t', 'h':'t',
-        'j':'z', 'k':'t', 'l':'l', 'm':'m', 'n':'m', 'p':'t',
-        'q':'t', 'r':'l', 's':'z', 't':'t', 'v':'m', 'w':'m',
-        'x':'z', 'z':'z'
-      };
+      if (isEnglishToAlien) {
+        // English -> Alien
+        let lower = text.toLowerCase();
+        if (engToAlienDict.has(lower)) {
+          outputText.textContent = engToAlienDict.get(lower);
+          return;
+        }
 
-      let rawSyllables = "";
-      for (let ch of lower) {
-        if (charMap[ch]) rawSyllables += charMap[ch];
-      }
+        // Process token by token
+        const tokens = text.split(/(\s+|[^\w\s]+)/);
+        const translated = tokens.map(token => {
+          if (!token.trim() || /^[^\w\s]+$/.test(token)) return token;
+          const clean = token.toLowerCase();
+          if (engToAlienDict.has(clean)) return engToAlienDict.get(clean);
+          return encodeWord(clean);
+        }).join('');
 
-      // Smooth alien syllables into max 2 repeating chars and clean phonotactics
-      let alienWord = rawSyllables.replace(/(.)\1{2,}/g, '$1$1');
-      if (alienWord.length < 2) {
-        alienWord = (charMap[lower[0]] || 'z') + 'it';
-      }
-
-      // If this alien word already collides with another English word, add a deterministic suffix
-      if (alienToEngMap.has(alienWord) && alienToEngMap.get(alienWord) !== lower) {
-        alienWord += 'z';
-      }
-
-      // Cache dynamically in memory so reverse translation is 100% instant and identical
-      saveLearnedPair(lower, alienWord);
-      return alienWord;
-    }
-
-    // Decode an alien word back to English
-    function decodeWordToEnglish(alienWord) {
-      const lower = alienWord.toLowerCase();
-
-      // 1. Direct memory lookup
-      if (alienToEngMap.has(lower)) {
-        return alienToEngMap.get(lower);
-      }
-
-      // 2. Strip trailing inflection markers (z, l, t) to find closest root
-      const stripped = lower.replace(/z+$/, '');
-      if (alienToEngMap.has(stripped)) {
-        return alienToEngMap.get(stripped);
-      }
-
-      // 3. Fallback: return the word with a marker if it's completely unresolvable
-      return lower;
-    }
-
-    /* ==========================================================
-       4. TRANSLATION DISPATCHER
-       ========================================================== */
-    let currentMode = 'en-to-alien'; // 'en-to-alien' | 'alien-to-en'
-
-    function handleInput() {
-      const src = document.getElementById('sourceInput').value;
-      document.getElementById('charCount').textContent = `${src.length} character${src.length === 1 ? '' : 's'}`;
-
-      let result = '';
-      if (currentMode === 'en-to-alien') {
-        result = translateEnToAlien(src);
+        outputText.textContent = translated;
       } else {
-        result = translateAlienToEn(src);
-      }
-
-      const outEl = document.getElementById('targetOutput');
-      if (result.trim()) {
-        outEl.innerHTML = result;
-      } else {
-        outEl.innerHTML = `<span class="text-slate-600 font-sans text-base">Translation will appear here...</span>`;
-      }
-    }
-
-    function translateEnToAlien(text) {
-      if (!text.trim()) return '';
-      let working = text;
-
-      // Extract multi-word phrases first (e.g. "what the fuck", "are you", "good morning")
-      const sortedKeys = Array.from(engToAlienMap.keys())
-        .filter(k => k.includes(' '))
-        .sort((a, b) => b.length - a.length);
-
-      let placeholders = [];
-      sortedKeys.forEach((phrase, idx) => {
-        const regex = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'gi');
-        if (regex.test(working)) {
-          const key = `___PHRASE_${idx}___`;
-          placeholders.push({ key, val: engToAlienMap.get(phrase) });
-          working = working.replace(regex, key);
-        }
-      });
-
-      // Split into words and delimiters (punctuation, spaces)
-      const tokens = working.split(/([a-zA-Z0-9_\-]+|\s+|[^\s\w]+)/g);
-      const translated = tokens.map(token => {
-        if (!token) return '';
-        // Check phrase placeholder
-        const ph = placeholders.find(p => p.key === token);
-        if (ph) return ph.val;
-
-        // Is it an alphanumeric word?
-        if (/^[a-zA-Z0-9]+$/.test(token)) {
-          const alien = encodeWordToAlien(token);
-          // Preserve first-letter capitalization
-          if (token.charAt(0) === token.charAt(0).toUpperCase()) {
-            return alien.charAt(0).toUpperCase() + alien.slice(1);
-          }
-          return alien;
+        // Alien -> English
+        let lower = text.toLowerCase();
+        if (alienToEngDict.has(lower)) {
+          outputText.textContent = alienToEngDict.get(lower);
+          return;
         }
 
-        return token;
-      });
+        const tokens = text.split(/(\s+|[^\w\s]+)/);
+        const translated = tokens.map(token => {
+          if (!token.trim() || /^[^\w\s]+$/.test(token)) return token;
+          const clean = token.toLowerCase();
+          if (alienToEngDict.has(clean)) return alienToEngDict.get(clean);
+          return decodeWord(clean);
+        }).join('');
 
-      return translated.join('');
-    }
-
-    function translateAlienToEn(text) {
-      if (!text.trim()) return '';
-      let working = text;
-
-      // Handle multi-word alien phrases in memory
-      const sortedAlienKeys = Array.from(alienToEngMap.keys())
-        .filter(k => k.includes(' '))
-        .sort((a, b) => b.length - a.length);
-
-      let placeholders = [];
-      sortedAlienKeys.forEach((phrase, idx) => {
-        const regex = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'gi');
-        if (regex.test(working)) {
-          const key = `___APHRASE_${idx}___`;
-          placeholders.push({ key, val: alienToEngMap.get(phrase) });
-          working = working.replace(regex, key);
-        }
-      });
-
-      // Split into tokens
-      const tokens = working.split(/([a-zA-Z0-9_\-]+|\s+|[^\s\w]+)/g);
-      const translated = tokens.map(token => {
-        if (!token) return '';
-        const ph = placeholders.find(p => p.key === token);
-        if (ph) return ph.val;
-
-        if (/^[a-zA-Z0-9]+$/.test(token)) {
-          const eng = decodeWordToEnglish(token);
-          if (token.charAt(0) === token.charAt(0).toUpperCase()) {
-            return eng.charAt(0).toUpperCase() + eng.slice(1);
-          }
-          return eng;
-        }
-
-        return token;
-      });
-
-      return translated.join('');
-    }
-
-    function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    /* ==========================================================
-       5. SWAP, COPY & CLEAR CONTROLS
-       ========================================================== */
-    function swapLanguages() {
-      currentMode = (currentMode === 'en-to-alien') ? 'alien-to-en' : 'en-to-alien';
-      const left = document.getElementById('langLeft');
-      const right = document.getElementById('langRight');
-      const input = document.getElementById('sourceInput');
-      const outText = document.getElementById('targetOutput').innerText;
-
-      if (currentMode === 'en-to-alien') {
-        left.textContent = "English";
-        left.className = "font-display font-semibold text-sm text-emerald-400 tracking-wide";
-        right.textContent = "Zitmol (Alien)";
-        right.className = "font-display font-semibold text-sm text-cyan-400 tracking-wide";
-        input.placeholder = "Type anything in English (e.g. 'are u lesbian', 'mental', 'wtf')...";
-      } else {
-        left.textContent = "Zitmol (Alien)";
-        left.className = "font-display font-semibold text-sm text-cyan-400 tracking-wide";
-        right.textContent = "English";
-        right.className = "font-display font-semibold text-sm text-emerald-400 tracking-wide";
-        input.placeholder = "Type in Zitmol (e.g. 'til lit lizmi', 'mimtol', 'zotzom')...";
+        outputText.textContent = translated;
       }
-
-      if (outText && !outText.startsWith('Translation will')) {
-        input.value = outText.trim();
-      }
-      handleInput();
     }
 
-    function clearText() {
-      document.getElementById('sourceInput').value = '';
-      handleInput();
-    }
+    // Swap direction
+    swapBtn.addEventListener('click', () => {
+      isEnglishToAlien = !isEnglishToAlien;
+      srcLabel.textContent = isEnglishToAlien ? 'English' : 'Zitmol (Alien)';
+      targetLabel.textContent = isEnglishToAlien ? 'Zitmol (Alien)' : 'English';
+      inputText.value = outputText.textContent;
+      translateText();
+    });
 
-    function copyTranslation() {
-      const text = document.getElementById('targetOutput').innerText;
-      if (!text || text.startsWith('Translation will')) return;
+    inputText.addEventListener('input', translateText);
 
-      const temp = document.createElement('textarea');
-      temp.value = text;
-      document.body.appendChild(temp);
-      temp.select();
-      try {
-        document.execCommand('copy');
-        const btn = document.getElementById('copyBtnText');
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
-      } catch (e) {}
-      document.body.removeChild(temp);
-    }
+    clearBtn.addEventListener('click', () => {
+      inputText.value = '';
+      outputText.textContent = '';
+      wordCount.textContent = '0 chars';
+      inputText.focus();
+    });
 
-    /* ==========================================================
-       6. WEB AUDIO API SYNTH VOICE
-       ========================================================== */
+    copyBtn.addEventListener('click', () => {
+      if (!outputText.textContent) return;
+      navigator.clipboard.writeText(outputText.textContent).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => copyBtn.textContent = 'Copy', 1500);
+      });
+    });
+
+    // Sound synthesizer using Web Audio
     let audioCtx = null;
-    function speakAlienVoice() {
-      let text = (currentMode === 'en-to-alien')
-        ? document.getElementById('targetOutput').innerText
-        : document.getElementById('sourceInput').value;
+    soundBtn.addEventListener('click', () => {
+      const textToPlay = isEnglishToAlien ? outputText.textContent : inputText.value;
+      if (!textToPlay) return;
 
-      text = text.replace(/[^ziotml]/gi, '').toLowerCase();
-      if (!text) return;
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      let time = audioCtx.currentTime;
+      const cleanChars = textToPlay.toLowerCase().replace(/[^ziotml]/g, '').slice(0, 30);
 
-      const wave = document.getElementById('audioWave');
-      const speaker = document.getElementById('speakerIcon');
-      const voiceText = document.getElementById('voiceBtnText');
-
-      wave.classList.remove('hidden');
-      speaker.classList.add('hidden');
-      voiceText.textContent = 'Beaming...';
-
-      const tones = {
-        'z': { freq: 360, type: 'sawtooth' },
-        'i': { freq: 940, type: 'sine' },
-        'o': { freq: 240, type: 'triangle' },
-        't': { freq: 720, type: 'square' },
-        'm': { freq: 180, type: 'sine' },
-        'l': { freq: 540, type: 'sine' }
+      const freqMap = {
+        'z': 180,
+        'i': 520,
+        'o': 260,
+        't': 440,
+        'm': 200,
+        'l': 340
       };
 
-      const maxLetters = Math.min(text.length, 28);
-      const step = 0.08;
-
-      for (let i = 0; i < maxLetters; i++) {
-        const char = text[i];
-        const cfg = tones[char] || { freq: 440, type: 'sine' };
-
+      for (let i = 0; i < cleanChars.length; i++) {
+        const char = cleanChars[i];
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
-        const startTime = audioCtx.currentTime + (i * step);
-        const dur = 0.07;
+        osc.type = (char === 'z' || char === 'm') ? 'sawtooth' : 'sine';
+        osc.frequency.setValueAtTime(freqMap[char] || 300, time);
 
-        osc.type = cfg.type;
-        osc.frequency.setValueAtTime(cfg.freq, startTime);
-        osc.frequency.exponentialRampToValueAtTime(cfg.freq * 1.3, startTime + dur);
-
-        gain.gain.setValueAtTime(0.0001, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+        gain.gain.setValueAtTime(0.08, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
 
-        osc.start(startTime);
-        osc.stop(startTime + dur + 0.01);
+        osc.start(time);
+        osc.stop(time + 0.09);
+        time += 0.08;
       }
+    });
 
-      setTimeout(() => {
-        wave.classList.add('hidden');
-        speaker.classList.remove('hidden');
-        voiceText.textContent = 'Speak Alien';
-      }, (maxLetters * step * 1000) + 150);
-    }
-
-    /* ==========================================================
-       7. QUICK PHRASE PILLS & DICTIONARY MODAL
-       ========================================================== */
-    const TEST_PRESETS = [
-      { label: "mental", text: "mental" },
-      { label: "are you lesbian", text: "are you lesbian" },
-      { label: "wtf bro", text: "wtf bro" },
-      { label: "chill dude", text: "chill dude" },
-      { label: "good morning", text: "good morning" },
-      { label: "who are you", text: "who are you" },
-      { label: "i see you", text: "i see you" },
-      { label: "danger! run!", text: "danger! run!" }
-    ];
-
-    function initQuickPills() {
-      const container = document.getElementById('quickPills');
-      container.innerHTML = '';
-      TEST_PRESETS.forEach(item => {
-        const chip = document.createElement('button');
-        chip.className = "px-3 py-1 rounded-full text-xs font-mono bg-slate-900 hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/30 text-slate-300 hover:text-emerald-300 transition active:scale-95";
-        chip.textContent = item.label;
-        chip.onclick = () => {
-          if (currentMode !== 'en-to-alien') swapLanguages();
-          document.getElementById('sourceInput').value = item.text;
-          handleInput();
-          speakAlienVoice();
-        };
-        container.appendChild(chip);
+    // Quick chip buttons
+    document.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!isEnglishToAlien) {
+          isEnglishToAlien = true;
+          srcLabel.textContent = 'English';
+          targetLabel.textContent = 'Zitmol (Alien)';
+        }
+        inputText.value = btn.getAttribute('data-text');
+        translateText();
       });
-    }
+    });
 
-    function toggleDictionary() {
-      const modal = document.getElementById('dictModal');
-      const isHidden = modal.classList.contains('hidden');
-      if (isHidden) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        renderDictionary();
-      } else {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    }
-
-    function renderDictionary() {
-      const query = (document.getElementById('dictSearch').value || '').toLowerCase();
-      const list = document.getElementById('dictList');
-      list.innerHTML = '';
-
-      const entries = Array.from(engToAlienMap.entries()).filter(([eng, alien]) => {
-        return eng.includes(query) || alien.includes(query);
-      });
-
-      if (entries.length === 0) {
-        list.innerHTML = `<div class="text-xs text-slate-500 font-mono py-4 text-center">No words match query</div>`;
-        return;
-      }
-
-      entries.forEach(([eng, alien]) => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition text-xs font-mono cursor-pointer";
-        row.innerHTML = `
-          <span class="text-white">${eng}</span>
-          <span class="text-emerald-400 font-bold tracking-wider">${alien}</span>
-        `;
-        row.onclick = () => {
-          if (currentMode !== 'en-to-alien') swapLanguages();
-          document.getElementById('sourceInput').value = eng;
-          toggleDictionary();
-          handleInput();
-          speakAlienVoice();
-        };
-        list.appendChild(row);
-      });
-    }
-
-    window.onload = function() {
-      // Ensure clean initial state
-      const sourceInput = document.getElementById('sourceInput');
-      if (!sourceInput.value.trim()) {
-        sourceInput.value = 'hi';
-      }
-      handleInput();
-    };
+    // Initial run
+    inputText.value = 'hi';
+    translateText();
   </script>
 </body>
 </html>
